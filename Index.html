@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>King Street - Desconto de Saque</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1c1f1d;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #ffffff;
+      padding: 30px 20px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    h2, h3 {
+      color: #2e3a2e;
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      background: #f4f6f4;
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.3s ease;
+      text-align: left;
+    }
+
+    label:hover {
+      background: #e3eae3;
+      border-color: #b5c0b5;
+    }
+
+    input[type="radio"] {
+      margin-right: 10px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #3e6b47;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #345a3c;
+    }
+
+    .resultado {
+      margin-top: 20px;
+      background: #eaf7ed;
+      padding: 15px;
+      border-left: 5px solid #3e6b47;
+      border-radius: 8px;
+      color: #2e4e33;
+      text-align: left;
+    }
+
+    .resultado p {
+      margin: 5px 0;
+    }
+
+    #desktop-only {
+      display: none;
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        display: none;
+      }
+      #desktop-only {
+        display: block;
+        color: white;
+        font-size: 1.2em;
+        text-align: center;
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Valor da Carteira</h2>
+    <input type="number" id="valorCarteira" placeholder="Digite o valor em R$" />
+
+    <h3>Desconto de Saque</h3>
+    <label><input type="radio" name="desconto" value="50"> Desconto Fixo: R$50</label>
+    <label><input type="radio" name="desconto" value="15%"> Desconto Percentual: 15%</label>
+
+    <button onclick="calcularSaque()">Calcular</button>
+
+    <div class="resultado" id="resultado"></div>
+  </div>
+
+  <div id="desktop-only">
+    Este aplicativo funciona apenas em dispositivos móveis.
+  </div>
+
+  <script>
+    function calcularSaque() {
+      const valor = parseFloat(document.getElementById("valorCarteira").value);
+      const opcoes = document.getElementsByName("desconto");
+      let descontoSelecionado;
+
+      for (let opcao of opcoes) {
+        if (opcao.checked) {
+          descontoSelecionado = opcao.value;
+        }
+      }
+
+      if (!descontoSelecionado || isNaN(valor)) {
+        alert("Informe o valor da carteira e selecione um desconto.");
+        return;
+      }
+
+      let desconto, valorFinal;
+
+      if (descontoSelecionado.includes("%")) {
+        const percentual = parseFloat(descontoSelecionado) / 100;
+        desconto = valor * percentual;
+      } else {
+        desconto = parseFloat(descontoSelecionado);
+      }
+
+      valorFinal = valor - desconto;
+
+      document.getElementById("resultado").innerHTML = `
+        <p>Valor original: <strong>R$ ${valor.toFixed(2)}</strong></p>
+        <p>Desconto: <strong>R$ ${desconto.toFixed(2)}</strong></p>
+        <p><strong>Você vai receber: R$ ${valorFinal.toFixed(2)}</strong></p>
+      `;
+    }
+  </script>
+</body>
+</html>
