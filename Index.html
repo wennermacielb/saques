@@ -5,9 +5,7 @@
   <title>King Street - Desconto de Saque</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       background: #1c1f1d;
@@ -116,14 +114,25 @@
 </head>
 <body>
   <div class="container">
-    <h2>Valor da Carteira</h2>
-    <input type="number" id="valorCarteira" placeholder="Digite o valor em R$" />
+    <h2>Informe o tipo de cálculo:</h2>
+    <label><input type="radio" name="modo" value="valor" checked onchange="alternarModo()"> Quero informar o valor da carteira</label>
+    <label><input type="radio" name="modo" value="receber" onchange="alternarModo()"> Quero informar quanto quero receber</label>
+
+    <div id="campoValor">
+      <h3>Valor da Carteira</h3>
+      <input type="number" id="valorCarteira" placeholder="Digite o valor em R$" />
+    </div>
+
+    <div id="campoReceber" style="display:none;">
+      <h3>Quanto você quer receber?</h3>
+      <input type="number" id="valorReceber" placeholder="Digite quanto quer receber" />
+    </div>
 
     <h3>Desconto de Saque</h3>
     <label><input type="radio" name="desconto" value="50"> Desconto Fixo: R$50</label>
     <label><input type="radio" name="desconto" value="15%"> Desconto Percentual: 15%</label>
 
-    <button onclick="calcularSaque()">Calcular</button>
+    <button onclick="calcular()">Calcular</button>
 
     <div class="resultado" id="resultado"></div>
   </div>
@@ -133,38 +142,68 @@
   </div>
 
   <script>
-    function calcularSaque() {
-      const valor = parseFloat(document.getElementById("valorCarteira").value);
-      const opcoes = document.getElementsByName("desconto");
-      let descontoSelecionado;
+    function alternarModo() {
+      const modo = document.querySelector('input[name="modo"]:checked').value;
+      document.getElementById("campoValor").style.display = modo === "valor" ? "block" : "none";
+      document.getElementById("campoReceber").style.display = modo === "receber" ? "block" : "none";
+    }
 
-      for (let opcao of opcoes) {
-        if (opcao.checked) {
-          descontoSelecionado = opcao.value;
-        }
-      }
+    function calcular() {
+      const modo = document.querySelector('input[name="modo"]:checked').value;
+      const descontoSelecionado = [...document.getElementsByName("desconto")].find(d => d.checked)?.value;
 
-      if (!descontoSelecionado || isNaN(valor)) {
-        alert("Informe o valor da carteira e selecione um desconto.");
+      if (!descontoSelecionado) {
+        alert("Selecione um tipo de desconto.");
         return;
       }
 
-      let desconto, valorFinal;
+      let resultadoHTML = "";
+      let valor, desconto, valorFinal;
 
-      if (descontoSelecionado.includes("%")) {
-        const percentual = parseFloat(descontoSelecionado) / 100;
-        desconto = valor * percentual;
+      if (modo === "valor") {
+        valor = parseFloat(document.getElementById("valorCarteira").value);
+        if (isNaN(valor)) {
+          alert("Informe um valor válido.");
+          return;
+        }
+
+        if (descontoSelecionado.includes("%")) {
+          desconto = valor * (parseFloat(descontoSelecionado) / 100);
+        } else {
+          desconto = parseFloat(descontoSelecionado);
+        }
+
+        valorFinal = valor - desconto;
+
+        resultadoHTML = `
+          <p>Valor original: <strong>R$ ${valor.toFixed(2)}</strong></p>
+          <p>Desconto: <strong>R$ ${desconto.toFixed(2)}</strong></p>
+          <p><strong>Você vai receber: R$ ${valorFinal.toFixed(2)}</strong></p>
+        `;
       } else {
-        desconto = parseFloat(descontoSelecionado);
+        valorFinal = parseFloat(document.getElementById("valorReceber").value);
+        if (isNaN(valorFinal)) {
+          alert("Informe quanto deseja receber.");
+          return;
+        }
+
+        if (descontoSelecionado.includes("%")) {
+          const percentual = parseFloat(descontoSelecionado) / 100;
+          valor = valorFinal / (1 - percentual);
+          desconto = valor - valorFinal;
+        } else {
+          desconto = parseFloat(descontoSelecionado);
+          valor = valorFinal + desconto;
+        }
+
+        resultadoHTML = `
+          <p>Você quer receber: <strong>R$ ${valorFinal.toFixed(2)}</strong></p>
+          <p>Desconto: <strong>R$ ${desconto.toFixed(2)}</strong></p>
+          <p><strong>Você precisa sacar: R$ ${valor.toFixed(2)}</strong></p>
+        `;
       }
 
-      valorFinal = valor - desconto;
-
-      document.getElementById("resultado").innerHTML = `
-        <p>Valor original: <strong>R$ ${valor.toFixed(2)}</strong></p>
-        <p>Desconto: <strong>R$ ${desconto.toFixed(2)}</strong></p>
-        <p><strong>Você vai receber: R$ ${valorFinal.toFixed(2)}</strong></p>
-      `;
+      document.getElementById("resultado").innerHTML = resultadoHTML;
     }
   </script>
 </body>
